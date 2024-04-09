@@ -1,0 +1,92 @@
+.chat-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  &__background {
+    position: absolute;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    > header {
+      position: relative;
+      z-index: 1000;
+      box-sizing: border-box;
+      display: flex;
+      align-items: center;
+      width: 100%;
+      height: 59px;
+      padding: 0 16px;
+      border-bottom: 1px solid #ccc;
+      > .image {
+        height: 42px;
+        width: 42px;
+        line-height: 42px;
+        text-align: center;
+        margin-right: 16px;
+        background-color: #f1f1f1;
+        border-radius: 50%;
+      }
+      > span {
+        font-size: 1rem;
+        font-weight: 500;
+        margin-right: auto;
+      }
+      > .ant-btn-group {
+        > button {
+          border: none;
+          box-shadow: none;
+          border-radius: 50px !important;
+        }
+      }
+    }
+    > main {
+      z-index: 1;
+      display: flex;
+      flex-direction: column;
+      flex-grow: 1;
+      flex-shrink: 1;
+      flex-basis: 0;
+      order: 2;
+      background-color: #eee;
+      position: relative;
+      > div {
+        padding-top: 12px;
+        position: absolute;
+        top: 0;
+        z-index: 100;
+        box-sizing: border-box;
+        width: 100%;
+        height: 100%;
+        // flex-basis: auto;
+        overflow-x: hidden;
+        overflow-y: scroll;
+        transition: background 0.3s ease-out 0.1s;
+        > .message {
+          padding: 0 5%;
+          margin-bottom: 12px;
+        }
+      }
+    }
+    > footer {
+      position: relative;
+      z-index: 1;
+      box-sizing: border-box;
+      flex: none;
+      order: 3;
+      width: 100%;
+      min-height: 62px;
+      border-top: 1px solid #ccc;
+      padding: 0 16px;
+      > form {
+        display: flex;
+        position: absolute;
+        top: 50%;
+        right: 16px;
+        left: 16px;
+        transform: translateY(-50%);
+      }
+    }
+  }
+}

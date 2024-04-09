@@ -1,0 +1,124 @@
+html,
+body,
+#app {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen",
+    "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue",
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#app {
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+h1,
+h2,
+h3,
+h4,
+p {
+  margin: 0;
+  padding: 0;
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
+    monospace;
+}
+
+.wrapper {
+  position: relative;
+  z-index: 100;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  .app-container {
+    top: 0;
+    position: relative;
+    display: flex;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    border: 1px solid #cccccc;
+    &__menu {
+      flex: 40%;
+      min-width: 260px;
+      position: relative;
+      z-index: 100;
+      height: 100%;
+      overflow: hidden;
+      border-right: 1px solid #cccccc;
+    }
+    &__content {
+      flex: 60%;
+      position: relative;
+      z-index: 100;
+      height: 100%;
+      overflow: hidden;
+    }
+  }
+}
+
+@media screen and (min-width: 901px) and (max-width: 1024px) {
+  .wrapper {
+    .app-container {
+      &__menu {
+        flex: 35%;
+      }
+      &__content {
+        flex: 65%;
+      }
+    }
+  }
+}
+
+@media screen and (min-width: 1025px) and (max-width: 1300px) {
+  .wrapper {
+    .app-container {
+      &__menu {
+        flex: 35%;
+      }
+      &__content {
+        flex: 65%;
+      }
+    }
+  }
+}
+
+@media screen and (min-width: 1301px) {
+  .wrapper {
+    .app-container {
+      &__menu {
+        flex: 30%;
+      }
+      &__content {
+        flex: 70%;
+      }
+    }
+  }
+}
+
+@media screen and (min-width: 1441px) {
+  .wrapper {
+    top: 19px;
+    width: 1396px;
+    height: calc(100% - 38px);
+    margin: 0 auto;
+    .app-container {
+      &__menu {
+        flex: 30%;
+      }
+    }
+  }
+}
