@@ -48,34 +48,11 @@ app.get("/message", (_: Request, res: Response) => {
    * Essa implementação proporcionará uma experiência de visualização clara e 
    * facilitará a interação com as mensagens disponíveis.
   */
-  try {
-    const sortedMessages = messages.sort((a, b) => {
-      return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
-    });
-    const reformulatedList = []
-    const months = ['Janeiro', 'Fevereiro', 'Março',
-      'Abril', 'Maio', 'Junho', 'Julio', 'Agosto',
-      'Setembro', 'Outubro', 'Novembro', 'Dezembro',
-    ];
-    for(let message of sortedMessages) {
-      const day = message.createdAt.getDate()
-      const month = message.createdAt.getMonth()
-      const year = message.createdAt.getFullYear()
-      const hour = message.createdAt.getHours()
-      const minute = message.createdAt.getMinutes()
-      const createdValue = `${day} de ${months[month]} de ${year} às ${hour}:${minute}`
-      const reformulatedObject = {
-        enviadoPorMim: message.fromMe ? "Sim" : "Não",
-        origem: message.senderName,
-        mensagem: message.text,
-        dataDeEnvio: createdValue
-      }
-      reformulatedList.push(reformulatedObject)
-    }
-    return res.status(200).json(reformulatedList);
-  } catch (error) {
-    res.status(500).json({ error: "Ocorreu um erro interno no servidor"});
-  }
+  const sortedMessages = messages.sort((a, b) => {
+    return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
+  });
+
+  return res.json(sortedMessages);
 });
 
 app.post("/message", (req: Request, res: Response) => {
