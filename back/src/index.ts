@@ -115,12 +115,8 @@ app.post("/message", (req: Request, res: Response) => {
     createdAt: new Date(),
   };
 
-  // console.log("----");
-  // console.log("message ENVIADO AGORA: ", message);
-  // console.log("----");
-  messages.push(message);
+  //messages.push(message);
   insertMessage(JSON.stringify(message))
-
   
   broadcast({
     type: "message",
