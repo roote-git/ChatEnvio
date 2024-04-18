@@ -9,6 +9,7 @@ import { useDispatch } from "react-redux";
 import { initialFetchMessages } from "../store/routines/messages";
 import { chatService } from "../api";
 import { chatActions } from "../store/features/messages";
+import { url } from "../api";
 
 export default function ChatRoom() {
   const [messageText, setMessageText] = useState("");
@@ -32,19 +33,18 @@ export default function ChatRoom() {
   const dummy = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const socket = new WebSocket("ws://localhost:3000");
+    const socket = new WebSocket("ws://" + url);
 
     const heartbeat = () => {
       if (!socket) return;
       if (socket.readyState !== 1) return;
       socket.send(JSON.stringify({ ping: "Pong" }));
-      message.info("Heartbeat!");
       setTimeout(heartbeat, 10000);
     };
 
     socket.onopen = function () {
       heartbeat();
-      message.success("Onopen - Seu chat está conectado!");
+      message.success("Seu chat está conectado!");
     };
     const listener = (event: MessageEvent) => {
       message.success("Listener acionado!");
@@ -158,20 +158,26 @@ export default function ChatRoom() {
     setNickUsuario(event.target.value);
   }
 
+  const groupName = "Grupo de Teste";
+
 
   return (
     <>
       <div className="chat-container">
         <div className="chat-container__background">
+
           <header style={{ display: "flex", justifyContent: "space-between" }}>
-          
             <div className="image">Icon</div>
+            
+            {groupName}
+
             <Dropdown.Button
               style={{ width: 50 }}
               overlay={menu}
               icon={<MoreOutlined style={{ fontSize: "1.65rem" }} />}
             />
           </header>
+
           <main>
             <div>
               {messages.map((msg, index) => {
@@ -180,7 +186,7 @@ export default function ChatRoom() {
                   <ChatMessage
                     key={index}
                     fromMe={senderName === randomName}
-                    senderName={senderName === randomName ? "Eu" : senderName}
+                    senderName={senderName === randomName ? nickUsuario : senderName}
                     text={text}
                     createdAt={createdAt}
                   />
@@ -189,6 +195,7 @@ export default function ChatRoom() {
               <div ref={dummy} />
             </div>
           </main>
+
           <footer>
             <form onSubmit={(e) => e.preventDefault()}>
               <Input

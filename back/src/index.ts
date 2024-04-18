@@ -4,7 +4,6 @@ import { Request, Response } from "express";
 import * as http from "http";
 import * as WebSocket from "ws";
 import cors from "cors";
-import bodyParser from "body-parser";
 import sqlite3 from 'sqlite3'
 import { open } from 'sqlite'
 
@@ -21,7 +20,6 @@ const broadcast = (msg: any) => {
 wss.on("connection", (ws) => {
   console.log("Client connected");
   const heartbeat = () => {
-    console.log("Heartbeat");
     if (!ws) return;
     if (ws.readyState !== 1) return;
     ws.send(
@@ -51,21 +49,21 @@ const messages: ChatMessageProps[] = [
   { fromMe: false, senderName: "Small Talk", text: "Hoje tá quente, né?", createdAt: new Date() },
 ];
 
-//Puxa todas as msgs do DB e joga pro array de mensagens
+//Puxa todas as msgs do DB e insere pro array de mensagens
 async function getAllMessages() {
   const dbPath = path.resolve(__dirname, 'mensagens.db');
   open({
     filename: dbPath,
     driver: sqlite3.Database
   }).then((db) => {
-    console.log("DB Aberto com sucesso")
+    console.log("DB Aberto com sucesso, buscando mensagens...")
     db.all(`SELECT * FROM mensagens`).then((row) => {
       row.forEach((element) => {
         messages.push(JSON.parse(element.mensagemJson))
       });
     }).then(() => {
       db.close()
-      console.log("DB Fechado")
+      console.log("Mensagens carregadas, DB fechado.")
     })
   }).catch((err) => {
     console.log("Erro ao abrir o DB: " + err)
@@ -117,9 +115,9 @@ app.post("/message", (req: Request, res: Response) => {
     createdAt: new Date(),
   };
 
-  console.log("----");
-  console.log("message ENVIADO AGORA: ", message);
-  console.log("----");
+  // console.log("----");
+  // console.log("message ENVIADO AGORA: ", message);
+  // console.log("----");
   messages.push(message);
   insertMessage(JSON.stringify(message))
 
@@ -137,6 +135,5 @@ app.all("*", (req: Request, res: Response) =>
 );
 
 server.listen(3000, async () => {
-  //Fazer uma lógica para buscar as mensgens salvas no BD ao iniciar
-  console.log(`Chat Envio Server started on port 3000 :)`);
+  console.log(`Servidor do ChatEnvio rodando na porta 3000 :)`);
 });

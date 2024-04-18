@@ -1,8 +1,10 @@
 import axios, { AxiosRequestConfig } from "axios";
 import { ChatMessageProps } from "./components/ChatMessage";
 
+export const url = "192.168.2.169:3000";
+
 const api = axios.create({
-  baseURL: "http://localhost:3000",
+  baseURL: "http://" + url,
 });
 
 const handleRequest = async (config: AxiosRequestConfig) => {
