@@ -26,6 +26,8 @@ export default function ChatRoom() {
    * garantindo um desempenho superior à medida que a aplicação cresce em escala.
    */
 
+  //AntonioVini47: Feito no BACK com insertMessage()
+
   // const [messages, setMessages] = useState<Array<ChatMessageProps>>([]);
   const dummy = useRef<HTMLDivElement>(null);
 
@@ -57,6 +59,8 @@ export default function ChatRoom() {
        * chat assim que forem recebidas do backend.
        *
        */
+      //AntonioVini47: Feito no BACK
+
       if (data.type === "heartbeat" || data.message.senderName === randomName)
         return;
       dispatch(chatActions.add({ ...data.message, fromMe: false }));
@@ -106,6 +110,8 @@ export default function ChatRoom() {
         Essa implementação garantirá que as mensagens enviadas sejam processadas de forma eficiente, 
         permitindo uma comunicação contínua e confiável entre o frontend e o backend.
        */
+      
+  //AntonioVini47: Feito no BACK com insertMessage()
       const data: ChatMessageProps = {
         fromMe: true,
         senderName: randomName,
@@ -158,13 +164,8 @@ export default function ChatRoom() {
       <div className="chat-container">
         <div className="chat-container__background">
           <header style={{ display: "flex", justifyContent: "space-between" }}>
-          Nick: <Input
-                type="text"
-                placeholder="nickUsuario"
-                onChange={onNickChange}
-              />
-            <button onClick={executaDebug}>DEBUG</button>
-            <div className="image">{nickUsuario}</div>
+          
+            <div className="image">Icon</div>
             <Dropdown.Button
               style={{ width: 50 }}
               overlay={menu}
@@ -198,6 +199,12 @@ export default function ChatRoom() {
                 onPressEnter={handleKeyPress}
               />
               <Button onClick={handleCreateMessage}>Enviar</Button>
+              Nick: <Input
+                type="text"
+                placeholder="Escolha um nick..."
+                onChange={onNickChange}
+              />
+            <button onClick={executaDebug}>DEBUG</button>
             </form>
           </footer>
         </div>

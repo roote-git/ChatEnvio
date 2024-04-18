@@ -59,7 +59,7 @@ async function getAllMessages() {
     driver: sqlite3.Database
   }).then((db) => {
     console.log("DB Aberto com sucesso")
-    const result = db.all(`SELECT * FROM mensagens`).then((row) => {
+    db.all(`SELECT * FROM mensagens`).then((row) => {
       row.forEach((element) => {
         messages.push(JSON.parse(element.mensagemJson))
       });
@@ -83,6 +83,8 @@ app.get("/message", (_: Request, res: Response) => {
    * Essa implementação proporcionará uma experiência de visualização clara e 
    * facilitará a interação com as mensagens disponíveis.
   */ 
+
+  //AntonioVini47: Feito com getAllMessages()
   
   const sortedMessages = messages.sort((a, b) => {
     return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
@@ -98,10 +100,10 @@ async function insertMessage(stringfiedMessage: string) {
     driver: sqlite3.Database
   }).then((db) => {
     console.log("DB Aberto com sucesso")
-    const result = db.run('INSERT INTO mensagens(mensagemJson) VALUES (:mensagemJson)', {
+    db.run('INSERT INTO mensagens(mensagemJson) VALUES (:mensagemJson)', {
       ':mensagemJson': stringfiedMessage
     })
-    
+    console.log("Mensagem inserida com sucesso.")
   }).catch((err) => {
     console.log("Erro ao abrir o DB: " + err)
   })
@@ -121,6 +123,7 @@ app.post("/message", (req: Request, res: Response) => {
   messages.push(message);
   insertMessage(JSON.stringify(message))
 
+  
   broadcast({
     type: "message",
     message,

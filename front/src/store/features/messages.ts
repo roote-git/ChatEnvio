@@ -4,7 +4,7 @@ import { getMessagesRoutines } from "../routines/messages";
 import { StoreState } from "..";
 import { ChatMessageProps } from "../../components/ChatMessage";
 
-const names = ["Ribas", "Ediguinhos", "Matheus", "Tom", "Lucas", "Rafael", "Gabriel", "Ricardo", "Rafaela", "Larissa", "Mariana", "Juliana", "Ana", "Maria", "João", "Pedro", "Paulo", "Luciana"];
+const names = ["Ana", "Bruno", "Carlos"];
 
 export type ChatState = {
   messages: ChatMessageProps[];
