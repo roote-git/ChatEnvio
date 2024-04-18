@@ -172,7 +172,8 @@ export default function ChatRoom() {
   //Alterar Nick do Usuário
   const [isNickModalVisible, setIsNickModalVisible] = useState(true);
   const [nickUsuario, setNickUsuario] = useState("Anônimo");
-  const [isNickValid, setIsNickValid] = useState(true);
+  const [isNickValid, setIsNickValid] = useState(false);
+  const [nickMessage, setNickMessage] = useState("Nick inválido!");
 
   const showNickModal = () => {
     setIsNickModalVisible(true);
@@ -182,17 +183,19 @@ export default function ChatRoom() {
     setIsNickModalVisible(false);
   };
   
-  const handleNickCancel = () => {
-    setIsNickModalVisible(false);
-  };
-  
   const onNickChange = (event: any) => {
     const newNick = event.target.value;
     setNickUsuario(newNick);
-  
-    // Verifique se o novo nome de usuário já foi usado ou se é válido
+    
+    // Verifique se o novo nome de usuário já foi usado ou se está vazio
     const isNickUsed = messages.some(msg => msg.senderName === newNick);
-    if (isNickUsed || newNick === undefined || newNick === "") {setIsNickValid(false);} else {setIsNickValid(true);}
+    if (isNickUsed || newNick === undefined || newNick === "") {
+      setNickMessage("Nick inválido.")
+      setIsNickValid(false);
+    } else {
+      setNickMessage("Nick disponível!");
+      setIsNickValid(true);
+    }
   };
 
   const menu = (
@@ -257,14 +260,12 @@ export default function ChatRoom() {
             <Input placeholder="Insira o novo nome do grupo" onChange={(e) => setNewGroupName(e.target.value)} />
           </Modal>
           
-          <Modal title="Escolha seu usuário" visible={isNickModalVisible}>
-            <Input placeholder="Digite seu nick..." onChange={onNickChange} />
+          <Modal title="Escolha seu usuário" visible={isNickModalVisible} footer={null}>
+            <Input placeholder="Digite seu nome de usuário..." onChange={onNickChange} />
+            <div style={{ color: isNickValid ? "green" : "red" }}>{nickMessage}</div>
             <div>
               <Button type="primary" onClick={handleNickOk} disabled={!isNickValid}>
                 OK
-              </Button>
-              <Button onClick={handleNickCancel}>
-                Cancelar
               </Button>
             </div>
           </Modal>
