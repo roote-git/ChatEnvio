@@ -36,14 +36,16 @@ export default function ChatRoom() {
       if (!socket) return;
       if (socket.readyState !== 1) return;
       socket.send(JSON.stringify({ ping: "Pong" }));
+      message.info("Heartbeat!");
       setTimeout(heartbeat, 10000);
     };
 
     socket.onopen = function () {
       heartbeat();
-      message.success("Seu chat está conectado! ✅");
+      message.success("Onopen - Seu chat está conectado!");
     };
     const listener = (event: MessageEvent) => {
+      message.success("Listener acionado!");
       const data = JSON.parse(event.data);
       // TODO addNewMessage
       /**
@@ -62,10 +64,10 @@ export default function ChatRoom() {
 
     socket.addEventListener("message", listener);
     socket.onclose = function () {
-      message.success("Erro ao conectar (onclose)");
+      message.error("Erro ao conectar (onclose) ❌");
     };
     socket.onerror = function () {
-      message.success("Erro ao conectar (onerror)");
+      message.error("Erro ao conectar (onerror) ❌");
     };
 
     return () => {
@@ -133,12 +135,36 @@ export default function ChatRoom() {
     </Menu>
   );
 
+  
+  const executaDebug = async () => {
+    message.info("Botão Debug executado");
+  }
+
+  const handleKeyPress = (event: any) => {
+      if (messageText.trim())
+        handleCreateMessage(event);
+  };
+
+  const [nickUsuario, setNickUsuario] = useState("Antonio");
+
+  const onNickChange = (event: any) => {
+    message.info("Nick alterado para: " + event.target.value);
+    setNickUsuario(event.target.value);
+  }
+
+
   return (
     <>
       <div className="chat-container">
         <div className="chat-container__background">
           <header style={{ display: "flex", justifyContent: "space-between" }}>
-            <div className="image">Fake</div>
+          Nick: <Input
+                type="text"
+                placeholder="nickUsuario"
+                onChange={onNickChange}
+              />
+            <button onClick={executaDebug}>DEBUG</button>
+            <div className="image">{nickUsuario}</div>
             <Dropdown.Button
               style={{ width: 50 }}
               overlay={menu}
@@ -167,10 +193,11 @@ export default function ChatRoom() {
               <Input
                 type="text"
                 value={messageText}
-                placeholder="Type a message"
+                placeholder="Digite uma mensagem..."
                 onChange={handleMessageOnChange}
+                onPressEnter={handleKeyPress}
               />
-              <Button onClick={handleCreateMessage}>Send message</Button>
+              <Button onClick={handleCreateMessage}>Enviar</Button>
             </form>
           </footer>
         </div>
