@@ -1,7 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import React, { useState, useEffect, useRef } from "react";
-import { Input, Button, Menu, Dropdown, message } from "antd";
-import { MoreOutlined } from "@ant-design/icons";
+import { Input, Button, Menu, Dropdown, message, Modal, Row, Col } from "antd";
 import "./styles.scss";
 import ChatMessage, { ChatMessageProps } from "../components/ChatMessage";
 import { useChat } from "../store/hooks";
@@ -10,6 +9,7 @@ import { initialFetchMessages } from "../store/routines/messages";
 import { chatService } from "../api";
 import { chatActions } from "../store/features/messages";
 import { url } from "../api";
+
 
 export default function ChatRoom() {
   const [messageText, setMessageText] = useState("");
@@ -127,16 +127,59 @@ export default function ChatRoom() {
     }
   };
 
+  const [isIconModalVisible, setIsIconModalVisible] = useState(false);
+  const [groupIcon, setGroupIcon] = useState("👥");
+  const iconesGrupo: string[]= ["🥳", "😂", "😍", "😱", "🤢", "💀", "🤘", "👑", "🔥", "🌈", "⚽", "🚴", "🎭", "🎮", "❤️", "✅", "⚠️", "⛔"];
+
+  const showIconModal = () => {
+    setIsIconModalVisible(true);
+  };
+  
+  const handleIconOk = () => {
+    setIsIconModalVisible(false);
+  };
+  
+  const handleIconCancel = () => {
+    setIsIconModalVisible(false);
+  };
+  
+  const handleIconClick = (icon) => {
+    setGroupIcon(icon);
+    setIsIconModalVisible(false);
+  };
+
+  const [isModalVisible, setIsTitleModalVisible] = useState(false);
+  const [groupName, setGroupName] = useState("Grupo Inicial");
+  const [newGroupName, setNewGroupName] = useState("");
+
+  const showTitleModal = () => {
+    setIsTitleModalVisible(true);
+  };
+
+  const handleOk = () => {
+    setGroupName(newGroupName);
+    setIsTitleModalVisible(false);
+  };
+
+  const handleCancel = () => {
+    setIsTitleModalVisible(false);
+  };
+
   const menu = (
     <Menu>
-      <Menu.Item key="1" onClick={() => {}}>
-        Edit group name
+      <Menu.Item key="1" onClick={showTitleModal}>
+        Editar nome do Grupo
       </Menu.Item>
-      <Menu.Item key="2" onClick={() => {}}>
-        Change group icon
+
+      <Menu.Item key="2" onClick={showIconModal}>
+        Mudar Ícone do Grupo
       </Menu.Item>
+      <Menu.Item key="3" onClick={() => {}}>
+        Mudar seu Nick
+      </Menu.Item>
+      <Menu.Divider />
       <Menu.Item key="4" onClick={() => {}}>
-        Exit group
+        Sair do Grupo
       </Menu.Item>
     </Menu>
   );
@@ -158,8 +201,6 @@ export default function ChatRoom() {
     setNickUsuario(event.target.value);
   }
 
-  const groupName = "Grupo de Teste";
-
 
   return (
     <>
@@ -167,15 +208,29 @@ export default function ChatRoom() {
         <div className="chat-container__background">
 
           <header style={{ display: "flex", justifyContent: "space-between" }}>
-            <div className="image">Icon</div>
+            <Modal title="Alterar ícone do grupo" visible={isIconModalVisible} onOk={handleIconOk} onCancel={handleIconCancel}>
+              <Row gutter={16}>
+                {iconesGrupo.map((icone, index) => (
+                  <Col key={index} span={4}>
+                    <div onClick={() => handleIconClick(icone)}>
+                      {icone}
+                    </div>
+                  </Col>
+                ))}
+              </Row>
+            </Modal>
+            <div className="image"><h2>{groupIcon}</h2></div>
             
             {groupName}
+
+            <Modal title="Alterar nome do grupo" visible={isModalVisible} onOk={handleOk} onCancel={handleCancel}>
+              <Input placeholder="Insira o novo nome do grupo" onChange={(e) => setNewGroupName(e.target.value)} />
+            </Modal>
 
             <Dropdown.Button
               style={{ width: 50 }}
               overlay={menu}
-              icon={<MoreOutlined style={{ fontSize: "1.65rem" }} />}
-            />
+            ></Dropdown.Button>
           </header>
 
           <main>
