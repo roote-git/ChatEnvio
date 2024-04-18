@@ -47,7 +47,7 @@ export default function ChatRoom() {
       message.success("Seu chat está conectado!");
     };
     const listener = (event: MessageEvent) => {
-      message.success("Listener acionado!");
+      //message.success("Listener acionado!");
       const data = JSON.parse(event.data);
       // TODO addNewMessage
       /**
@@ -61,7 +61,7 @@ export default function ChatRoom() {
        */
       //AntonioVini47: Feito no BACK
 
-      if (data.type === "heartbeat" || data.message.senderName === nickSalvo)
+      if (data.type === "heartbeat" || data.message.senderName === nickUsuario)
         return;
       dispatch(chatActions.add({ ...data.message, fromMe: false }));
     };
@@ -114,7 +114,7 @@ export default function ChatRoom() {
   //AntonioVini47: Feito no BACK com insertMessage()
       const data: ChatMessageProps = {
         fromMe: true,
-        senderName: nickSalvo,
+        senderName: nickUsuario,
         text: messageText,
       };
 
@@ -171,26 +171,28 @@ export default function ChatRoom() {
 
   //Alterar Nick do Usuário
   const [isNickModalVisible, setIsNickModalVisible] = useState(true);
-  const [nickUsuario, setNickUsuario] = useState("Sem Cadastro");
-  const [nickSalvo, setNickSalvo] = useState("Sem Cadastro"); //AntonioVini47: Adicionado para salvar o nick original [Antonio
+  const [nickUsuario, setNickUsuario] = useState("Anônimo");
+  const [isNickValid, setIsNickValid] = useState(true);
 
   const showNickModal = () => {
     setIsNickModalVisible(true);
   };
-
+  
   const handleNickOk = () => {
-    setNickSalvo(nickUsuario);
     setIsNickModalVisible(false);
   };
-
+  
   const handleNickCancel = () => {
-    setNickUsuario(nickSalvo);
     setIsNickModalVisible(false);
   };
-
+  
   const onNickChange = (event: any) => {
-    //Checar se está disponível a cada caractere digitado, só libera o botão OK se passar no CHECK
-    setNickUsuario(event.target.value);
+    const newNick = event.target.value;
+    setNickUsuario(newNick);
+  
+    // Verifique se o novo nome de usuário já foi usado ou se é válido
+    const isNickUsed = messages.some(msg => msg.senderName === newNick);
+    if (isNickUsed || newNick === undefined || newNick === "") {setIsNickValid(false);} else {setIsNickValid(true);}
   };
 
   const menu = (
@@ -230,7 +232,7 @@ export default function ChatRoom() {
             <div>
               {groupName}
             </div>
-            <div>Nick atual: {nickSalvo}</div>
+            <div>Nick atual: {nickUsuario}</div>
             <div>
               <Dropdown.Button
                 style={{ width: 50 }}
@@ -255,8 +257,16 @@ export default function ChatRoom() {
             <Input placeholder="Insira o novo nome do grupo" onChange={(e) => setNewGroupName(e.target.value)} />
           </Modal>
           
-          <Modal title="Escolha seu usuário" visible={isNickModalVisible} onOk={handleNickOk} onCancel={handleNickCancel}>
+          <Modal title="Escolha seu usuário" visible={isNickModalVisible}>
             <Input placeholder="Digite seu nick..." onChange={onNickChange} />
+            <div>
+              <Button type="primary" onClick={handleNickOk} disabled={!isNickValid}>
+                OK
+              </Button>
+              <Button onClick={handleNickCancel}>
+                Cancelar
+              </Button>
+            </div>
           </Modal>
 
           <main>
@@ -266,8 +276,8 @@ export default function ChatRoom() {
                 return (
                   <ChatMessage
                     key={index}
-                    fromMe={senderName === nickSalvo}
-                    senderName={senderName === nickSalvo ? nickSalvo : senderName}
+                    fromMe={senderName === nickUsuario}
+                    senderName={senderName === nickUsuario ? nickUsuario : senderName}
                     text={text}
                     createdAt={createdAt}
                   />
