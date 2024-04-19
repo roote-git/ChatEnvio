@@ -10,7 +10,6 @@ import { chatService } from "../api";
 import { chatActions } from "../store/features/messages";
 import { url } from "../api";
 
-
 export default function ChatRoom() {
   const [messageText, setMessageText] = useState("");
   const { messages, randomName } = useChat();
@@ -26,10 +25,9 @@ export default function ChatRoom() {
    * Isso proporcionará uma gestão mais eficiente e otimizada das mensagens,
    * garantindo um desempenho superior à medida que a aplicação cresce em escala.
    */
-
-  //AntonioVini47: Feito no BACK com insertMessage()
-
+  
   // const [messages, setMessages] = useState<Array<ChatMessageProps>>([]);
+
   const dummy = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -44,12 +42,11 @@ export default function ChatRoom() {
 
     socket.onopen = function () {
       heartbeat();
-      message.success("Seu chat está conectado!");
+      message.success("Você está online!");
 
     };
 
     const listener = (event: MessageEvent) => {
-      //message.success("Listener acionado!");
       const data = JSON.parse(event.data);
       // TODO addNewMessage
       /**
@@ -61,12 +58,15 @@ export default function ChatRoom() {
        * chat assim que forem recebidas do backend.
        *
        */
-      //AntonioVini47: Feito no BACK
 
-      //Atualiza nome do grupo junto ao listener
+      //Atualiza nome e o ícone do grupo junto ao listener
       (async () => {
         const res = await chatService.getGroupName();
         setGroupName(res.groupName);
+      })();
+      (async () => {
+        const res = await chatService.getGroupIcon();
+        setGroupIcon(res.groupIcon);
       })();
 
       if (data.type === "heartbeat" || data.message.senderName === nickUsuario)
@@ -76,10 +76,10 @@ export default function ChatRoom() {
 
     socket.addEventListener("message", listener);
     socket.onclose = function () {
-      message.error("Erro ao conectar (onclose) ❌");
+      //message.error("Erro ao conectar"); // Ativo somento no Debug
     };
     socket.onerror = function () {
-      message.error("Erro ao conectar (onerror) ❌");
+      //message.error("Erro ao conectar"); // Ativo somento no Debug
     };
 
     return () => {
@@ -119,7 +119,6 @@ export default function ChatRoom() {
         permitindo uma comunicação contínua e confiável entre o frontend e o backend.
        */
       
-      //AntonioVini47: Feito no BACK com insertMessage()
       const data: ChatMessageProps = {
         fromMe: true,
         senderName: nickUsuario,
@@ -127,7 +126,7 @@ export default function ChatRoom() {
       };
 
       const res = await chatService.sendMessage(data);
-      //dispatch(chatActions.add(res)); - Aparentemente não precisa mais, já que o chat atualiza automaticamnete lendo o back, evita duplicar exibição da mnesagem
+      //dispatch(chatActions.add(res)); - Aparentemente não precisa mais, já que o chat atualiza automaticamnete lendo o back, evita duplicar exibição ao enviar mensagem
 
       setMessageText("");
 
@@ -139,21 +138,18 @@ export default function ChatRoom() {
   const [isIconModalVisible, setIsIconModalVisible] = useState(false);
   const [groupIcon, setGroupIcon] = useState("👥");
   const iconesGrupo: string[]= ["🥳", "😂", "😍", "😱", "🤢", "💀", "🤘", "👑", "🔥", "🌈", "⚽", "🚴", "🎭", "🎮", "❤️", "✅", "⚠️", "⛔"];
-
   const showIconModal = () => {
     setIsIconModalVisible(true);
   };
-  
   const handleIconOk = () => {
     setIsIconModalVisible(false);
   };
-  
   const handleIconCancel = () => {
     setIsIconModalVisible(false);
   };
-  
   const handleIconClick = (icon) => {
     setGroupIcon(icon);
+    chatService.sendGroupIcon(icon);
     setIsIconModalVisible(false);
   };
 
@@ -161,17 +157,14 @@ export default function ChatRoom() {
   const [isModalVisible, setIsTitleModalVisible] = useState(false);
   const [groupName, setGroupName] = useState("Grupo Padrão");
   const [newGroupName, setNewGroupName] = useState("");
-
   const showTitleModal = () => {
     setIsTitleModalVisible(true);
   };
-
   const handleOk = () => {
     setGroupName(newGroupName);
     setIsTitleModalVisible(false);
     chatService.sendGroupName(newGroupName);
   };
-
   const handleCancel = () => {
     setIsTitleModalVisible(false);
   };
@@ -180,16 +173,13 @@ export default function ChatRoom() {
   const [isNickModalVisible, setIsNickModalVisible] = useState(true);
   const [nickUsuario, setNickUsuario] = useState("Anônimo");
   const [isNickValid, setIsNickValid] = useState(false);
-  const [nickMessage, setNickMessage] = useState("Nick inválido!");
-
+  const [nickMessage, setNickMessage] = useState("Crie um nick único para continuar!");
   const showNickModal = () => {
     setIsNickModalVisible(true);
   };
-  
   const handleNickOk = () => {
     setIsNickModalVisible(false);
   };
-  
   const onNickChange = (event: any) => {
     const newNick = event.target.value;
     setNickUsuario(newNick);
@@ -197,12 +187,21 @@ export default function ChatRoom() {
     // Verifique se o novo nome de usuário já foi usado ou se está vazio
     const isNickUsed = messages.some(msg => msg.senderName === newNick);
     if (isNickUsed || newNick === undefined || newNick === "") {
-      setNickMessage("Nick inválido.")
+      setNickMessage("Nick inválido ou já utilizado.")
       setIsNickValid(false);
     } else {
       setNickMessage("Nick disponível!");
       setIsNickValid(true);
     }
+  };
+
+  //Balão informativo
+  const [isInfoModalVisible, setIsInfoModalVisible] = useState(false);
+  const showInfoModal = () => {
+    setIsInfoModalVisible(true);
+  };
+  const handleInfoOk = () => {
+    setIsInfoModalVisible(false);
   };
 
   const menu = (
@@ -215,14 +214,14 @@ export default function ChatRoom() {
       </Menu.Item>
       <Menu.Divider />
       <Menu.Item key="3" onClick={showNickModal}>
-        Mudar seu Nick
+        Trocar Username
       </Menu.Item>
     </Menu>
   );
 
   
   const executaDebug = async () => {
-    message.info("Botão Debug executado");
+    message.info("Bem-vindo ao ChatEnvio!");
   }
 
   const handleKeyPress = (event: any) => {
@@ -242,12 +241,12 @@ export default function ChatRoom() {
             <div>
               {groupName}
             </div>
-            <div>Nick atual: {nickUsuario}</div>
             <div>
               <Dropdown.Button
+              onClick={showInfoModal}
                 style={{ width: 50 }}
                 overlay={menu}
-              >+</Dropdown.Button>
+              >ℹ</Dropdown.Button>
             </div>
           </header>
 
@@ -264,7 +263,7 @@ export default function ChatRoom() {
           </Modal>
           
           <Modal title="Alterar nome do grupo" visible={isModalVisible} onOk={handleOk} onCancel={handleCancel}>
-            <Input placeholder="Insira o novo nome do grupo" onChange={(e) => setNewGroupName(e.target.value)} />
+            <Input placeholder="Insira o novo nome do grupo..." onChange={(e) => setNewGroupName(e.target.value)} />
           </Modal>
           
           <Modal title="Escolha seu usuário" visible={isNickModalVisible} footer={null}>
@@ -276,6 +275,17 @@ export default function ChatRoom() {
               </Button>
             </div>
           </Modal>
+
+          <Modal title="Como funciona" visible={isInfoModalVisible} onOk={handleInfoOk} onCancel={handleInfoOk}>
+            <p>Este é um aplicativo de chat randomico em tempo real.</p>
+            <p>Você pode enviar e receber mensagens com diversas pessoas simultaneamente.</p>
+            <p>Para começar, escolha um nome de usuário.</p>
+            <p>Ele será exclusivamente seu pelo tempo que permanecer nessa tela.</p>
+            <p>Depois disso, nunca mais outra pessoa vai poder usá-lo nesse mesmo grupo.</p>
+            <p>Seja respeitoso com os demais e divirtam-se!</p>
+          </Modal>
+
+          
 
           <main>
             <div>
@@ -305,7 +315,6 @@ export default function ChatRoom() {
                 onPressEnter={handleKeyPress}
               />
               <Button onClick={handleCreateMessage}>Enviar</Button>
-            <button onClick={executaDebug}>DEBUG</button>
             </form>
           </footer>
         </div>

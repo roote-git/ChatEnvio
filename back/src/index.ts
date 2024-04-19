@@ -43,12 +43,12 @@ interface ChatMessageProps {
   createdAt: Date;
 }
 
-//Mensagem exemplo
+//Mensagem exemplo, caso não haja nenhuma no DB
 const messages: ChatMessageProps[] = [
   { fromMe: false, senderName: "Small Talk", text: "Hoje tá quente, né?", createdAt: new Date() },
 ];
 
-//Puxa todas as msgs do DB e insere pro array de mensagens
+//Busca todas as msgs do DB e insere no array de mensagens
 async function getAllMessages() {
   const dbPath = path.resolve(__dirname, 'mensagens.db');
   open({
@@ -87,6 +87,8 @@ app.get("/message", (_: Request, res: Response) => {
   return res.json(sortedMessages);
 });
 
+
+//Função de inserir mensagens no DB
 async function insertMessage(stringfiedMessage: string) {
   const dbPath = path.resolve(__dirname, 'mensagens.db');
   open({
@@ -101,12 +103,50 @@ async function insertMessage(stringfiedMessage: string) {
   })
 }
 
+//Funções para manipular o nome e o ícone do grupo
+app.get("/icon", (req: Request, res: Response) => {
+  async function getGroupIcon() {
+    const dbPath = path.resolve(__dirname, 'mensagens.db');
+    open({
+      filename: dbPath,
+      driver: sqlite3.Database
+    }).then((db) => {
+      db.all('SELECT icone FROM dadosGrupo WHERE id = 1').then((row) => {
+        res.json({ groupIcon: row[0].icone });
+      })
+    }).catch((err) => {
+      console.log("Erro ao abrir o DB: " + err)
+    })
+  }
+  getGroupIcon()
+});
 
+app.post("/icon", (req: Request, res: Response) => {
+  const body = req.body;
+  const groupIcon = body.groupIcon;
+  
+  async function updateGroupIcon() {
+    const dbPath = path.resolve(__dirname, 'mensagens.db');
+    open({
+      filename: dbPath,
+      driver: sqlite3.Database
+    }).then((db) => {
+      db.run('UPDATE dadosGrupo SET icone = (:icon) WHERE id = 1', {
+        ':icon': groupIcon
+      })
+    }).catch((err) => {
+      console.log("Erro ao abrir o DB: " + err)
+    })
+  }
+  updateGroupIcon()
 
-
+  broadcast({
+    type: "group",
+    groupIcon,
+  });
+});
 
 app.get("/group", (req: Request, res: Response) => {
-  console.log("GET /group Iniciado");
   async function getGroupName() {
     const dbPath = path.resolve(__dirname, 'mensagens.db');
     open({
@@ -114,16 +154,8 @@ app.get("/group", (req: Request, res: Response) => {
       driver: sqlite3.Database
     }).then((db) => {
       db.all('SELECT nome FROM dadosGrupo WHERE id = 1').then((row) => {
-        console.log("Grupo encontrado: " + row[0].nome)
         res.json({ groupName: row[0].nome });
-        console.log("Grupo encontrado: " + row[0].nome)
       })
-
-        // console.log("Grupo encontrado: " + row.nome)
-        // res.json({ groupName: row.nome });
-      // }).then(() => {
-      //   db.close()
-      // })
     }).catch((err) => {
       console.log("Erro ao abrir o DB: " + err)
     })
@@ -132,15 +164,9 @@ app.get("/group", (req: Request, res: Response) => {
   getGroupName()
 });
 
-
-
-
-
 app.post("/group", (req: Request, res: Response) => {
   const body = req.body;
   const groupName = body.groupName;
-  
-  console.log("Post /group Grupo criado: " + groupName);
   
   async function updateGroupName() {
     const dbPath = path.resolve(__dirname, 'mensagens.db');
@@ -148,18 +174,15 @@ app.post("/group", (req: Request, res: Response) => {
       filename: dbPath,
       driver: sqlite3.Database
     }).then((db) => {
-      console.log("DB Aberto com sucesso, atualizando grupo...")
       db.run('UPDATE dadosGrupo SET nome = (:name) WHERE id = 1', {
         ':name': groupName
       })
-      console.log("Grupo atualizado com sucesso.")
     }).catch((err) => {
       console.log("Erro ao abrir o DB: " + err)
     })
   }
   updateGroupName()
 
-  return //Aparentemente não há necessidade de retornar nada a partir daqui
   broadcast({
     type: "group",
     groupName,

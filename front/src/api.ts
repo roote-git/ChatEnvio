@@ -1,7 +1,7 @@
 import axios, { AxiosRequestConfig } from "axios";
 import { ChatMessageProps } from "./components/ChatMessage";
 
-export const url = "localhost:3000"; //Impoortante trocar prao IP da máquina que está rodando o back
+export const url = "localhost:3000"; //Impoortante trocar para o IP da máquina que está rodando o back
 
 const api = axios.create({
   baseURL: "http://" + url,
@@ -48,6 +48,23 @@ export const chatService = {
     const config: AxiosRequestConfig = {
       method: "GET",
       url: "/group",
+    };
+
+    return handleRequest(config);
+  },
+  sendGroupIcon: async (groupIcon: string) => {
+    const config: AxiosRequestConfig = {
+      method: "POST",
+      url: "/icon",
+      data: { groupIcon },
+    };
+
+    return handleRequest(config);
+  },
+  getGroupIcon: async () => {
+    const config: AxiosRequestConfig = {
+      method: "GET",
+      url: "/icon",
     };
 
     return handleRequest(config);
