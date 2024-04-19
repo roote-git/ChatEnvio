@@ -21,6 +21,8 @@ export default function ChatMessage(props: ChatMessageProps) {
    * 
    */
 
+   //AntonioVini47: Feito no front
+
   return (
     <>
       {createdAt && (

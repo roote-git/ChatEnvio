@@ -45,7 +45,9 @@ export default function ChatRoom() {
     socket.onopen = function () {
       heartbeat();
       message.success("Seu chat está conectado!");
+
     };
+
     const listener = (event: MessageEvent) => {
       //message.success("Listener acionado!");
       const data = JSON.parse(event.data);
@@ -60,6 +62,12 @@ export default function ChatRoom() {
        *
        */
       //AntonioVini47: Feito no BACK
+
+      //Atualiza nome do grupo junto ao listener
+      (async () => {
+        const res = await chatService.getGroupName();
+        setGroupName(res.groupName);
+      })();
 
       if (data.type === "heartbeat" || data.message.senderName === nickUsuario)
         return;
@@ -111,7 +119,7 @@ export default function ChatRoom() {
         permitindo uma comunicação contínua e confiável entre o frontend e o backend.
        */
       
-  //AntonioVini47: Feito no BACK com insertMessage()
+      //AntonioVini47: Feito no BACK com insertMessage()
       const data: ChatMessageProps = {
         fromMe: true,
         senderName: nickUsuario,
@@ -119,7 +127,7 @@ export default function ChatRoom() {
       };
 
       const res = await chatService.sendMessage(data);
-      //dispatch(chatActions.add(res)); - Aparentemente não precisa mais, já que o chat atualiza automaticamnete com o Back
+      //dispatch(chatActions.add(res)); - Aparentemente não precisa mais, já que o chat atualiza automaticamnete lendo o back, evita duplicar exibição da mnesagem
 
       setMessageText("");
 
@@ -137,7 +145,6 @@ export default function ChatRoom() {
   };
   
   const handleIconOk = () => {
-    //Falta salvar operação no DB
     setIsIconModalVisible(false);
   };
   
@@ -152,7 +159,7 @@ export default function ChatRoom() {
 
   //Alterar Nome do Grupo
   const [isModalVisible, setIsTitleModalVisible] = useState(false);
-  const [groupName, setGroupName] = useState("Grupo Inicial");
+  const [groupName, setGroupName] = useState("Grupo Padrão");
   const [newGroupName, setNewGroupName] = useState("");
 
   const showTitleModal = () => {
@@ -161,8 +168,8 @@ export default function ChatRoom() {
 
   const handleOk = () => {
     setGroupName(newGroupName);
-    //Falta salvar operação no DB
     setIsTitleModalVisible(false);
+    chatService.sendGroupName(newGroupName);
   };
 
   const handleCancel = () => {
@@ -246,10 +253,10 @@ export default function ChatRoom() {
 
           <Modal title="Alterar ícone do grupo" visible={isIconModalVisible} onOk={handleIconOk} onCancel={handleIconCancel}>
             <Row gutter={16}>
-              {iconesGrupo.map((icone, index) => (
+              {iconesGrupo.map((icon, index) => (
                 <Col key={index} span={4}>
-                  <div onClick={() => handleIconClick(icone)}>
-                    {icone}
+                  <div onClick={() => handleIconClick(icon)}>
+                    {icon}
                   </div>
                 </Col>
               ))}

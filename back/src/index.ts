@@ -18,7 +18,6 @@ const broadcast = (msg: any) => {
 };
 
 wss.on("connection", (ws) => {
-  console.log("Client connected");
   const heartbeat = () => {
     if (!ws) return;
     if (ws.readyState !== 1) return;
@@ -56,14 +55,12 @@ async function getAllMessages() {
     filename: dbPath,
     driver: sqlite3.Database
   }).then((db) => {
-    console.log("DB Aberto com sucesso, buscando mensagens...")
     db.all(`SELECT * FROM mensagens`).then((row) => {
       row.forEach((element) => {
         messages.push(JSON.parse(element.mensagemJson))
       });
     }).then(() => {
       db.close()
-      console.log("Mensagens carregadas, DB fechado.")
     })
   }).catch((err) => {
     console.log("Erro ao abrir o DB: " + err)
@@ -73,7 +70,6 @@ async function getAllMessages() {
 getAllMessages()
 
 app.get("/message", (_: Request, res: Response) => {
-  console.log("GET /message");
   // TODO 
   /**
    * Desenvolva uma lógica eficiente para listar as mensagens contidas no array, 
@@ -97,18 +93,84 @@ async function insertMessage(stringfiedMessage: string) {
     filename: dbPath,
     driver: sqlite3.Database
   }).then((db) => {
-    console.log("DB Aberto com sucesso")
     db.run('INSERT INTO mensagens(mensagemJson) VALUES (:mensagemJson)', {
       ':mensagemJson': stringfiedMessage
     })
-    console.log("Mensagem inserida com sucesso.")
   }).catch((err) => {
     console.log("Erro ao abrir o DB: " + err)
   })
 }
 
+
+
+
+
+app.get("/group", (req: Request, res: Response) => {
+  console.log("GET /group Iniciado");
+  async function getGroupName() {
+    const dbPath = path.resolve(__dirname, 'mensagens.db');
+    open({
+      filename: dbPath,
+      driver: sqlite3.Database
+    }).then((db) => {
+      db.all('SELECT nome FROM dadosGrupo WHERE id = 1').then((row) => {
+        console.log("Grupo encontrado: " + row[0].nome)
+        res.json({ groupName: row[0].nome });
+        console.log("Grupo encontrado: " + row[0].nome)
+      })
+
+        // console.log("Grupo encontrado: " + row.nome)
+        // res.json({ groupName: row.nome });
+      // }).then(() => {
+      //   db.close()
+      // })
+    }).catch((err) => {
+      console.log("Erro ao abrir o DB: " + err)
+    })
+  }
+
+  getGroupName()
+});
+
+
+
+
+
+app.post("/group", (req: Request, res: Response) => {
+  const body = req.body;
+  const groupName = body.groupName;
+  
+  console.log("Post /group Grupo criado: " + groupName);
+  
+  async function updateGroupName() {
+    const dbPath = path.resolve(__dirname, 'mensagens.db');
+    open({
+      filename: dbPath,
+      driver: sqlite3.Database
+    }).then((db) => {
+      console.log("DB Aberto com sucesso, atualizando grupo...")
+      db.run('UPDATE dadosGrupo SET nome = (:name) WHERE id = 1', {
+        ':name': groupName
+      })
+      console.log("Grupo atualizado com sucesso.")
+    }).catch((err) => {
+      console.log("Erro ao abrir o DB: " + err)
+    })
+  }
+  updateGroupName()
+
+  return //Aparentemente não há necessidade de retornar nada a partir daqui
+  broadcast({
+    type: "group",
+    groupName,
+  });
+
+  res.json({ groupName });
+});
+
+
 app.post("/message", (req: Request, res: Response) => {
-  console.log("POST /message Iniciado");
+
   const body = req.body;
   const message = {
     ...body,
