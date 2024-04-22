@@ -1,7 +1,8 @@
 import axios, { AxiosRequestConfig } from "axios";
 import { ChatMessageProps } from "./components/ChatMessage";
 
-export const url = "localhost:3000"; //Impoortante trocar para o IP da máquina que está rodando o back
+export const url = import.meta.env.VITE_URL_HOST + ":" + import.meta.env.VITE_PORT;
+//Segunda Etapa: Utilização de variáveis de ambiente para facilitar a configuração do servidor
 
 const api = axios.create({
   baseURL: "http://" + url,
@@ -16,6 +17,48 @@ const handleRequest = async (config: AxiosRequestConfig) => {
     throw error; 
   }
 };
+
+// Segunda Etapa: Separado chatConfig de chatService
+// para facilitar a organização do código em vista
+//  de que um é utilizado para configurações dos dados do grupo
+// e o outro para ações de envio e recebimento de mensagens
+
+export const chatConfig = {
+  setGroupName: async (groupName: string) => {
+    const config: AxiosRequestConfig = {
+      method: "POST",
+      url: "/group",
+      data: { groupName },
+    };
+
+    return handleRequest(config);
+  },
+  getGroupName: async () => {
+    const config: AxiosRequestConfig = {
+      method: "GET",
+      url: "/group",
+    };
+
+    return handleRequest(config);
+  },
+  setGroupIcon: async (groupIcon: string) => {
+    const config: AxiosRequestConfig = {
+      method: "POST",
+      url: "/icon",
+      data: { groupIcon },
+    };
+
+    return handleRequest(config);
+  },
+  getGroupIcon: async () => {
+    const config: AxiosRequestConfig = {
+      method: "GET",
+      url: "/icon",
+    };
+
+    return handleRequest(config);
+  }
+}
 
 export const chatService = {
   getAllMessages: async () => {
@@ -35,38 +78,4 @@ export const chatService = {
 
     return handleRequest(config);
   },
-  sendGroupName: async (groupName: string) => {
-    const config: AxiosRequestConfig = {
-      method: "POST",
-      url: "/group",
-      data: { groupName },
-    };
-
-    return handleRequest(config);
-  },
-  getGroupName: async () => {
-    const config: AxiosRequestConfig = {
-      method: "GET",
-      url: "/group",
-    };
-
-    return handleRequest(config);
-  },
-  sendGroupIcon: async (groupIcon: string) => {
-    const config: AxiosRequestConfig = {
-      method: "POST",
-      url: "/icon",
-      data: { groupIcon },
-    };
-
-    return handleRequest(config);
-  },
-  getGroupIcon: async () => {
-    const config: AxiosRequestConfig = {
-      method: "GET",
-      url: "/icon",
-    };
-
-    return handleRequest(config);
-  }
 };

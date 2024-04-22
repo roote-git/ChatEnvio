@@ -1,3 +1,4 @@
+import 'dotenv/config';
 import path from "path";
 import express from "express";
 import { Request, Response } from "express";
@@ -43,7 +44,7 @@ interface ChatMessageProps {
   createdAt: Date;
 }
 
-//Mensagem exemplo, caso não haja nenhuma no DB
+//Mensagem exemplo, para não iniciar o array vazio
 const messages: ChatMessageProps[] = [
   { fromMe: false, senderName: "Small Talk", text: "Hoje tá quente, né?", createdAt: new Date() },
 ];
@@ -77,8 +78,6 @@ app.get("/message", (_: Request, res: Response) => {
    * Essa implementação proporcionará uma experiência de visualização clara e 
    * facilitará a interação com as mensagens disponíveis.
   */ 
-
-  //AntonioVini47: Feito com getAllMessages()
   
   const sortedMessages = messages.sort((a, b) => {
     return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
@@ -192,6 +191,9 @@ app.post("/group", (req: Request, res: Response) => {
 });
 
 
+
+
+
 app.post("/message", (req: Request, res: Response) => {
 
   const body = req.body;
@@ -211,10 +213,15 @@ app.post("/message", (req: Request, res: Response) => {
   res.json(message);
 });
 
+
+
+
+
+
 app.all("*", (req: Request, res: Response) =>
   res.status(404).json({ error: "URL not found" })
 );
 
-server.listen(3000, async () => {
-  console.log(`Servidor do ChatEnvio rodando na porta 3000 :)`);
+server.listen(process.env.PORT, async () => {
+  console.log('Servidor do ChatEnvio rodando na porta '+ process.env.PORT + ' :)');
 });

@@ -6,7 +6,7 @@ import ChatMessage, { ChatMessageProps } from "../components/ChatMessage";
 import { useChat } from "../store/hooks";
 import { useDispatch } from "react-redux";
 import { initialFetchMessages } from "../store/routines/messages";
-import { chatService } from "../api";
+import { chatConfig, chatService } from "../api";
 import { chatActions } from "../store/features/messages";
 import { url } from "../api";
 
@@ -61,11 +61,11 @@ export default function ChatRoom() {
 
       //Atualiza nome e o ícone do grupo junto ao listener
       (async () => {
-        const res = await chatService.getGroupName();
+        const res = await chatConfig.getGroupName();
         setGroupName(res.groupName);
       })();
       (async () => {
-        const res = await chatService.getGroupIcon();
+        const res = await chatConfig.getGroupIcon();
         setGroupIcon(res.groupIcon);
       })();
 
@@ -149,7 +149,7 @@ export default function ChatRoom() {
   };
   const handleIconClick = (icon) => {
     setGroupIcon(icon);
-    chatService.sendGroupIcon(icon);
+    chatConfig.setGroupIcon(icon);
     setIsIconModalVisible(false);
   };
 
@@ -163,15 +163,16 @@ export default function ChatRoom() {
   const handleOk = () => {
     setGroupName(newGroupName);
     setIsTitleModalVisible(false);
-    chatService.sendGroupName(newGroupName);
+    chatConfig.setGroupName(newGroupName);
   };
   const handleCancel = () => {
     setIsTitleModalVisible(false);
   };
 
-  //Segunda Etapa: Correção de uma falha e implementação de uma melhoria funcional, 
-  // onde, mesmo com o nick indisponível para escolher, deixava temporariamente as 
-  // mensagens como se o usuário atual tivesse enviado, pois, o nick tinha sido utilizado anteriormente.
+  // Segunda Etapa: Correção de uma falha e implementação de uma melhoria funcional, 
+  // onde, mesmo com o nick indisponível para escolher, permitia temporariamente as 
+  // mensagens como se o usuário atual tivesse enviado, pois, o nick tinha sido utilizado
+  // anteriormente. Exemplo no readme.md
   
   //Alterar Nick do Usuário
   const [isNickModalVisible, setIsNickModalVisible] = useState(true);
@@ -184,13 +185,11 @@ export default function ChatRoom() {
   };
   const handleNickOk = () => {
     setNickUsuario(nickTemp);
-    message.success("Nick alterado: " + nickTemp);
     setIsNickModalVisible(false);
   };
   const onNickChange = (event: any) => {
     const newNick = event.target.value;
     setNickTemp(newNick);
-    message.info("Nick: " + newNick);
     
     // Verifique se o novo nome de usuário já foi usado ou se está vazio
     const isNickUsed = messages.some(msg => msg.senderName === newNick);
@@ -227,11 +226,7 @@ export default function ChatRoom() {
     </Menu>
   );
 
-  
-  const executaDebug = async () => {
-    message.info("Bem-vindo ao ChatEnvio!");
-  }
-
+  //Envia mensagem ao pressionar Enter
   const handleKeyPress = (event: any) => {
       if (messageText.trim())
         handleCreateMessage(event);
