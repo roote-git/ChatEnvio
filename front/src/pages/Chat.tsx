@@ -85,7 +85,7 @@ export default function ChatRoom() {
     return () => {
       socket?.close();
     };
-  }, [randomName]);
+  }, []);
 
   useEffect(() => {
     if (dummy.current) {
@@ -192,7 +192,8 @@ export default function ChatRoom() {
     setNickTemp(newNick);
     
     // Verifique se o novo nome de usuário já foi usado ou se está vazio
-    const isNickUsed = messages.some(msg => msg.senderName === newNick);
+    const isNickUsed = messages.some(msg => msg.senderName.toLowerCase() === newNick.toLowerCase());
+    // Segunda etapa: Removido verificação "case sensitive" de nick, para reduzir as possibilidades de nick duplicado
     if (isNickUsed || newNick === undefined || newNick === "") {
       setNickMessage("Nick inválido ou já utilizado.")
       setIsNickValid(false);
