@@ -169,20 +169,28 @@ export default function ChatRoom() {
     setIsTitleModalVisible(false);
   };
 
+  //Segunda Etapa: Correção de uma falha e implementação de uma melhoria funcional, 
+  // onde, mesmo com o nick indisponível para escolher, deixava temporariamente as 
+  // mensagens como se o usuário atual tivesse enviado, pois, o nick tinha sido utilizado anteriormente.
+  
   //Alterar Nick do Usuário
   const [isNickModalVisible, setIsNickModalVisible] = useState(true);
   const [nickUsuario, setNickUsuario] = useState("Anônimo");
   const [isNickValid, setIsNickValid] = useState(false);
   const [nickMessage, setNickMessage] = useState("Crie um nick único para continuar!");
+  const [nickTemp, setNickTemp] = useState("Anônimo");
   const showNickModal = () => {
     setIsNickModalVisible(true);
   };
   const handleNickOk = () => {
+    setNickUsuario(nickTemp);
+    message.success("Nick alterado: " + nickTemp);
     setIsNickModalVisible(false);
   };
   const onNickChange = (event: any) => {
     const newNick = event.target.value;
-    setNickUsuario(newNick);
+    setNickTemp(newNick);
+    message.info("Nick: " + newNick);
     
     // Verifique se o novo nome de usuário já foi usado ou se está vazio
     const isNickUsed = messages.some(msg => msg.senderName === newNick);
