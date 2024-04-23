@@ -4,10 +4,18 @@ import sqlite3 from 'sqlite3'
 import { open } from 'sqlite'
 import { broadcast, messages } from "./index";
 
+// Segunda etapa: resumindo partes repetidas de código para uma única
+// variável, para facilitar a manutenção e evitar erros de digitação
+
+const dbPath = path.resolve(__dirname, 'mensagens.db');
+const dbConfig = {
+  filename: dbPath,
+  driver: sqlite3.Database
+}
+
 // Segunda etapa, separando as funções de acesso ao banco de dados
 // do arquivo principal "index.ts" para o arquivo "acessDB.ts"
 // para organizar o código e facilitar implementações futuras.
-
 export function getMessages(_: Request, res: Response) {  
   const sortedMessages = messages.sort((a, b) => {
     return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
@@ -17,11 +25,7 @@ export function getMessages(_: Request, res: Response) {
 }
 
 export async function getAllMessages() {
-  const dbPath = path.resolve(__dirname, 'mensagens.db');
-  open({
-    filename: dbPath,
-    driver: sqlite3.Database
-  }).then((db) => {
+  open(dbConfig).then((db) => {
     db.all(`SELECT * FROM mensagens`).then((row) => {
       row.forEach((element) => {
         messages.push(JSON.parse(element.mensagemJson))
@@ -35,14 +39,13 @@ export async function getAllMessages() {
 }
 
 export function postMessage(req: Request, res: Response) {
-
   const body = req.body;
   const message = {
     ...body,
     createdAt: new Date(),
   };
 
-  //messages.push(message);
+  messages.push(message);
   insertMessage(JSON.stringify(message))
   
   broadcast({
@@ -54,11 +57,7 @@ export function postMessage(req: Request, res: Response) {
 }
 
 export async function insertMessage(stringfiedMessage: string) {
-  const dbPath = path.resolve(__dirname, 'mensagens.db');
-  open({
-    filename: dbPath,
-    driver: sqlite3.Database
-  }).then((db) => {
+  open(dbConfig).then((db) => {
     db.run('INSERT INTO mensagens(mensagemJson) VALUES (:mensagemJson)', {
       ':mensagemJson': stringfiedMessage
     })
@@ -69,11 +68,7 @@ export async function insertMessage(stringfiedMessage: string) {
 
 // Funções para captura e alteração do nome do grupo
 export function getGroupName(req: Request, res: Response) {
-  const dbPath = path.resolve(__dirname, 'mensagens.db');
-  open({
-    filename: dbPath,
-    driver: sqlite3.Database
-  }).then((db) => {
+  open(dbConfig).then((db) => {
     db.all('SELECT nome FROM dadosGrupo WHERE id = 1').then((row) => {
       res.json({ groupName: row[0].nome });
     })
@@ -87,11 +82,7 @@ export function setGroupName(req: Request, res: Response){
   const groupName = body.groupName;
   
   async function updateGroupName() {
-    const dbPath = path.resolve(__dirname, 'mensagens.db');
-    open({
-      filename: dbPath,
-      driver: sqlite3.Database
-    }).then((db) => {
+    open(dbConfig).then((db) => {
       db.run('UPDATE dadosGrupo SET nome = (:name) WHERE id = 1', {
         ':name': groupName
       })
@@ -111,11 +102,7 @@ export function setGroupName(req: Request, res: Response){
 
 // Funções para captura e alteração do ícone do grupo
 export function getGroupIcon(req: Request, res: Response) {
-  const dbPath = path.resolve(__dirname, 'mensagens.db');
-  open({
-    filename: dbPath,
-    driver: sqlite3.Database
-  }).then((db) => {
+  open(dbConfig).then((db) => {
     db.all('SELECT icone FROM dadosGrupo WHERE id = 1').then((row) => {
       res.json({ groupIcon: row[0].icone });
     })
@@ -129,11 +116,7 @@ export function setGroupIcon (req: Request, res: Response){
   const groupIcon = body.groupIcon;
   
   async function updateGroupIcon() {
-    const dbPath = path.resolve(__dirname, 'mensagens.db');
-    open({
-      filename: dbPath,
-      driver: sqlite3.Database
-    }).then((db) => {
+    open(dbConfig).then((db) => {
       db.run('UPDATE dadosGrupo SET icone = (:icon) WHERE id = 1', {
         ':icon': groupIcon
       })

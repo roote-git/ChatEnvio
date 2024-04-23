@@ -4,7 +4,7 @@ import { Request, Response } from "express";
 import * as http from "http";
 import * as WebSocket from "ws";
 import cors from "cors";
-import { getGroupIcon, setGroupIcon, getGroupName, setGroupName, getAllMessages, getMessages, postMessage } from './acessDB';
+import { getGroupIcon, setGroupIcon, getGroupName, setGroupName, getAllMessages, getMessages, postMessage } from './controllers';
 
 const app = express();
 export const server = http.createServer(app);

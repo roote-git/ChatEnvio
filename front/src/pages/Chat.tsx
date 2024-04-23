@@ -85,7 +85,7 @@ export default function ChatRoom() {
     return () => {
       socket?.close();
     };
-  }, []);
+  }, [randomName]);
 
   useEffect(() => {
     if (dummy.current) {
@@ -104,6 +104,32 @@ export default function ChatRoom() {
 
     setMessageText(event.target.value);
   };
+
+  // Segunda etapa: Utilizando-se de um recurso já existente (mensagens)
+  // para criar uma nova funcionalidade, quando altera-se as informações do grupo
+  const handleOnGroupInfoChange = async (tipo: string, info: any) => {
+    if (tipo === "icon" && dummy.current){
+      const data: ChatMessageProps = {
+        fromMe: true,
+        senderName: nickUsuario,
+        text: "ALTEROU O ÍCONE DO GRUPO PARA " + info + ".",
+      };
+      await chatService.sendMessage(data);
+      dummy.current.scrollIntoView({ behavior: "smooth" });
+      return;
+    }
+
+    if(tipo === "name" && dummy.current){
+      const data: ChatMessageProps = {
+        fromMe: true,
+        senderName: nickUsuario,
+        text: 'ALTEROU O NOME DO GRUPO PARA "' + info + '".',
+      };
+      await chatService.sendMessage(data);
+      dummy.current.scrollIntoView({ behavior: "smooth" });
+      return;
+    }
+  }
 
   const handleCreateMessage = async (
     event: React.MouseEvent<HTMLButtonElement>
@@ -126,7 +152,7 @@ export default function ChatRoom() {
       };
 
       const res = await chatService.sendMessage(data);
-      //dispatch(chatActions.add(res)); - Aparentemente não precisa mais, já que o chat atualiza automaticamnete lendo o back, evita duplicar exibição ao enviar mensagem
+      //dispatch(chatActions.add(res)); // Aparentemente não precisa mais, já que o chat atualiza automaticamnete lendo o back, evita duplicar exibição ao enviar mensagem
 
       setMessageText("");
 
@@ -135,9 +161,9 @@ export default function ChatRoom() {
   };
 
   //Alterar Ícone do Grupo
+  const iconesGrupo: string[]= ["✅", "🥳", "😂", "😍", "😱", "🤢", "💀", "🤘", "👑", "🔥", "🌈", "⚽", "🚴", "🎭", "🎮", "❤️", "⚠️", "⛔"];
   const [isIconModalVisible, setIsIconModalVisible] = useState(false);
-  const [groupIcon, setGroupIcon] = useState("👥");
-  const iconesGrupo: string[]= ["🥳", "😂", "😍", "😱", "🤢", "💀", "🤘", "👑", "🔥", "🌈", "⚽", "🚴", "🎭", "🎮", "❤️", "✅", "⚠️", "⛔"];
+  const [groupIcon, setGroupIcon] = useState(iconesGrupo[0]);
   const showIconModal = () => {
     setIsIconModalVisible(true);
   };
@@ -149,13 +175,14 @@ export default function ChatRoom() {
   };
   const handleIconClick = (icon) => {
     setGroupIcon(icon);
-    chatConfig.setGroupIcon(icon);
     setIsIconModalVisible(false);
+    chatConfig.setGroupIcon(icon);
+    handleOnGroupInfoChange("icon", icon);
   };
 
   //Alterar Nome do Grupo
   const [isModalVisible, setIsTitleModalVisible] = useState(false);
-  const [groupName, setGroupName] = useState("Grupo Padrão");
+  const [groupName, setGroupName] = useState("Grupo Sem Nome");
   const [newGroupName, setNewGroupName] = useState("");
   const showTitleModal = () => {
     setIsTitleModalVisible(true);
@@ -164,6 +191,7 @@ export default function ChatRoom() {
     setGroupName(newGroupName);
     setIsTitleModalVisible(false);
     chatConfig.setGroupName(newGroupName);
+    handleOnGroupInfoChange("name", newGroupName);
   };
   const handleCancel = () => {
     setIsTitleModalVisible(false);
@@ -191,15 +219,25 @@ export default function ChatRoom() {
     const newNick = event.target.value;
     setNickTemp(newNick);
     
-    // Verifique se o novo nome de usuário já foi usado ou se está vazio
+    // Verifique se o novo nome de usuário já foi usado, ignorando a verificação "case sensitive"
     const isNickUsed = messages.some(msg => msg.senderName.toLowerCase() === newNick.toLowerCase());
-    // Segunda etapa: Removido verificação "case sensitive" de nick, para reduzir as possibilidades de nick duplicado
-    if (isNickUsed || newNick === undefined || newNick === "") {
-      setNickMessage("Nick inválido ou já utilizado.")
-      setIsNickValid(false);
-    } else {
-      setNickMessage("Nick disponível!");
-      setIsNickValid(true);
+
+    const getNickStatus = () => {
+      if (isNickUsed) return "utilizado";
+      if (newNick === undefined) return "indefinido";
+      if (newNick === "") return "vazio";
+      if (newNick.includes(" ")) return "temEspaco";
+      return "valid";
+    };
+
+    // Segunda etapa: melhoria na verificação do nick e feedback ao usuário
+    switch (getNickStatus()) {
+      case "utilizado": setNickMessage("Nick já utilizado."); setIsNickValid(false); break;
+      case "indefinido": setNickMessage("Nick indefinido."); setIsNickValid(false); break;
+      case "vazio": setNickMessage("Nick não pode ser vazio."); setIsNickValid(false); break;
+      case "temEspaco": setNickMessage("Nick não pode ter espaço."); setIsNickValid(false); break;
+      case "valid": setNickMessage("Nick disponível!"); setIsNickValid(true); break;
+      default: setNickMessage("Nick inválido."); setIsNickValid(false); break;
     }
   };
 
@@ -300,6 +338,7 @@ export default function ChatRoom() {
                     key={index}
                     fromMe={senderName === nickUsuario}
                     senderName={senderName === nickUsuario ? nickUsuario : senderName}
+                    //text = {text.startsWith("Alterou o ") === ? }
                     text={text}
                     createdAt={createdAt}
                   />
