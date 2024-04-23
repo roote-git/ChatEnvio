@@ -36,6 +36,27 @@
     }
   }
 
+  &.info {
+    flex-direction: row-reverse;
+    text-align: center;
+    display: flex;
+    justify-content: center;
+
+    .message__content {
+      background: gray;
+      color: white;
+
+      &__text {
+        padding: 0px 8px 0 8px;
+      }
+
+      &__at {
+        text-align: center;
+        padding: 0 8px 0 6px;
+      }
+    }
+  }
+
   &__content {
     max-width: 500px;
     line-height: 24px;

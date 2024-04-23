@@ -40,6 +40,7 @@ interface ChatMessageProps {
   fromMe: boolean;
   senderName: string;
   createdAt: Date;
+  infoChangeMessage?: boolean;
 }
 
 //Mensagem exemplo, para não iniciar o array vazio, e dar um "start" na conversa
@@ -48,7 +49,8 @@ export const messages: ChatMessageProps[] = [
     fromMe: false,
     senderName: "ChatEnvio", 
     text: "Bem-vindos! Sobre o que querem conversar hoje?",
-    createdAt: new Date()
+    createdAt: new Date(),
+    infoChangeMessage: true,
   },
 ];
 //Busca todas as msgs do DB e insere no array de mensagens

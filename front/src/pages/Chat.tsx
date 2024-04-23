@@ -105,7 +105,7 @@ export default function ChatRoom() {
     setMessageText(event.target.value);
   };
 
-  // Segunda etapa: Utilizando-se de um recurso já existente (mensagens)
+  // Segunda etapa: Utilizando-se de um recurso já existente (envio de mensagens)
   // para criar uma nova funcionalidade, quando altera-se as informações do grupo
   const handleOnGroupInfoChange = async (tipo: string, info: any) => {
     if (tipo === "icon" && dummy.current){
@@ -113,6 +113,7 @@ export default function ChatRoom() {
         fromMe: true,
         senderName: nickUsuario,
         text: "ALTEROU O ÍCONE DO GRUPO PARA " + info + ".",
+        infoChangeMessage: true,
       };
       await chatService.sendMessage(data);
       dummy.current.scrollIntoView({ behavior: "smooth" });
@@ -124,6 +125,7 @@ export default function ChatRoom() {
         fromMe: true,
         senderName: nickUsuario,
         text: 'ALTEROU O NOME DO GRUPO PARA "' + info + '".',
+        infoChangeMessage: true,
       };
       await chatService.sendMessage(data);
       dummy.current.scrollIntoView({ behavior: "smooth" });
@@ -149,6 +151,7 @@ export default function ChatRoom() {
         fromMe: true,
         senderName: nickUsuario,
         text: messageText,
+        infoChangeMessage: false,
       };
 
       const res = await chatService.sendMessage(data);
@@ -332,17 +335,17 @@ export default function ChatRoom() {
           <main>
             <div>
               {messages.map((msg, index) => {
-                const { senderName, text, createdAt } = msg;
-                return (
-                  <ChatMessage
-                    key={index}
-                    fromMe={senderName === nickUsuario}
-                    senderName={senderName === nickUsuario ? nickUsuario : senderName}
-                    //text = {text.startsWith("Alterou o ") === ? }
-                    text={text}
-                    createdAt={createdAt}
-                  />
-                );
+                const { senderName, text, createdAt, infoChangeMessage } = msg;
+                  return (
+                    <ChatMessage
+                      key={index}
+                      fromMe={senderName === nickUsuario}
+                      senderName={senderName === nickUsuario ? nickUsuario : senderName}
+                      text = {text}
+                      createdAt={createdAt}
+                      infoChangeMessage={infoChangeMessage}
+                    />
+                  );
               })}
               <div ref={dummy} />
             </div>
