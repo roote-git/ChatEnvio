@@ -2,12 +2,70 @@ import path from "path";
 import { Request, Response } from 'express';
 import sqlite3 from 'sqlite3'
 import { open } from 'sqlite'
-import { broadcast } from "./index";
+import { broadcast, messages } from "./index";
 
 // Segunda etapa, separando as funções de acesso ao banco de dados
 // do arquivo principal "index.ts" para o arquivo "acessDB.ts"
 // para organizar o código e facilitar implementações futuras.
 
+export function getMessages(_: Request, res: Response) {  
+  const sortedMessages = messages.sort((a, b) => {
+    return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
+  });
+
+  return res.json(sortedMessages);
+}
+
+export async function getAllMessages() {
+  const dbPath = path.resolve(__dirname, 'mensagens.db');
+  open({
+    filename: dbPath,
+    driver: sqlite3.Database
+  }).then((db) => {
+    db.all(`SELECT * FROM mensagens`).then((row) => {
+      row.forEach((element) => {
+        messages.push(JSON.parse(element.mensagemJson))
+      });
+    }).then(() => {
+      db.close()
+    })
+  }).catch((err) => {
+    console.log("Erro ao abrir o DB: " + err)
+  })
+}
+
+export function postMessage(req: Request, res: Response) {
+
+  const body = req.body;
+  const message = {
+    ...body,
+    createdAt: new Date(),
+  };
+
+  //messages.push(message);
+  insertMessage(JSON.stringify(message))
+  
+  broadcast({
+    type: "message",
+    message,
+  });
+
+  res.json(message);
+}
+
+export async function insertMessage(stringfiedMessage: string) {
+  const dbPath = path.resolve(__dirname, 'mensagens.db');
+  open({
+    filename: dbPath,
+    driver: sqlite3.Database
+  }).then((db) => {
+    db.run('INSERT INTO mensagens(mensagemJson) VALUES (:mensagemJson)', {
+      ':mensagemJson': stringfiedMessage
+    })
+  }).catch((err) => {
+    console.log("Erro ao abrir o DB: " + err)
+  })
+}
 
 // Funções para captura e alteração do nome do grupo
 export function getGroupName(req: Request, res: Response) {
